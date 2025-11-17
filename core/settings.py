@@ -11,6 +11,8 @@ DEBUG = os.getenv("DEBUG", "1") == "1"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1 localhost").split()
 
+AUTH_USER_MODEL = "accounts.User"
+
 # Apps
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -21,8 +23,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # 3rd party
     "rest_framework",
+    "rest_framework.authtoken",
     # local
     "api",
+    "accounts",
+    "posts",
+    "comments",
+    "likes",
+    "follows",
+    "notifications",
 ]
 
 
@@ -96,7 +105,9 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
 }

@@ -70,7 +70,7 @@ poetry init --no-interaction
 3. Instalar dependências base
 
 ```bash
-poetry add django djangorestframework gunicorn dj-database-url python-dotenv whitenoise psycopg2-binary
+poetry add django djangorestframework gunicorn dj-database-url python-dotenv whitenoise psycopg2-binary pillow factory_boy
 ```
 
 4. Instalar dev-deps (formatadores, linters, test runner)
@@ -317,8 +317,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
 }
 
@@ -360,7 +362,7 @@ def api_root(request):
 urlpatterns = [
     path("", api_root),
     path("admin/", admin.site.urls),
-    path("api-token-auth/", obtain_auth_token, name="api_token_auth"),
+    path("api/token/", obtain_auth_token, name="token"),
     path("api/v1/", include(router.urls)),
 ]
 
@@ -500,6 +502,15 @@ class BookAPITestCase(APITestCase):
 max-line-length = 120
 extend-ignore = E203, W503
 select = B,C,E,F,W,T4,B9
+
+# Pastas e arquivos a ignorar
+exclude =
+    migrations,
+    __pycache__,
+    manage.py,
+    env/,
+    venv/,
+    .venv/
 ```
 
 2. .pre-commit-config.yaml (opcional, muito útil)
