@@ -93,7 +93,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Django REST Framework - paginação + configurações úteis
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
-    # authentication classes, throttling, etc. Você pode adicionar aqui.
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ],
 }

@@ -105,7 +105,70 @@ poetry run python manage.py migrate
 
 ---
 
-# ⚙️ 3. pyproject.toml exemplo
+# ⚙️ 3. criação do .env
+
+```bash
+# ================================
+# 🔐 DJANGO SETTINGS
+# ================================
+SECRET_KEY=coloque_uma_chave_muito_grande_e_aleatoria_aqui
+DEBUG=0
+
+# Lista de domínios permitidos
+DJANGO_ALLOWED_HOSTS=127.0.0.1 localhost 127.0.0.1:8000 url_do_render_aqui
+
+# Caso use CSRF Trusted Origins (ex: Render)
+DJANGO_CSRF_TRUSTED_ORIGINS=https://url_do_render_aqui
+
+
+# ================================
+# 🗄️ DATABASE (POSTGRES)
+# ================================
+POSTGRES_DB=nome_do_banco
+POSTGRES_USER=usuario_do_banco
+POSTGRES_PASSWORD=senha_forte_aqui
+
+DATABASE_HOST=postgres
+DATABASE_PORT=5432
+
+
+# ================================
+# 🌐 CORS / FRONTEND
+# ================================
+CORS_ALLOWED_ORIGINS=https://seu-frontend.com
+CORS_ALLOW_CREDENTIALS=True
+
+
+# ================================
+# 📨 E-MAIL (envio online)
+# ================================
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=seuemail@gmail.com
+EMAIL_HOST_PASSWORD=sua_senha_app
+
+
+# ================================
+# 🔥 LOG LEVEL (produção)
+# ================================
+DJANGO_LOG_LEVEL=INFO
+
+
+# ================================
+# 🧹 SECURITY HEADERS
+# ================================
+SECURE_SSL_REDIRECT=True
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+
+DRF_RENDERER_DEFAULT=JSON
+```
+
+---
+
+# ⚙️ 4. pyproject.toml exemplo
 
 ```toml
 [project]
@@ -146,7 +209,7 @@ dev = [
 
 ---
 
-# ⚙️ 4. Configuração básica do Django
+# ⚙️ 5. Configuração básica do Django
 
 ```python
 import os
@@ -251,40 +314,61 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Django REST Framework - paginação + configurações úteis
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
-    # authentication classes, throttling, etc. Você pode adicionar aqui.
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ],
 }
+
 
 ```
 
 ---
 
-# ⚙️ 5. Unificar todas as URLs no core
+# ⚙️ 6. Unificar todas as URLs no core
 
 1. core/urls.py (unificação)
 
 ```python
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken.views import obtain_auth_token
 
 from api.views import BookViewSet
 
 router = DefaultRouter()
-router.register(r"books", BookViewSet)
+router.register(r"books", BookViewSet, basename="books")
+
+
+def api_root(request):
+    return JsonResponse(
+        {
+            "status": "ok",
+            "message": "Bem-vindo(a) à API do projeto RNT-Hub",
+            "version": "v1",
+            "links": {
+                "books": "/api/v1/books/",
+            },
+        }
+    )
+
 
 urlpatterns = [
+    path("", api_root),
     path("admin/", admin.site.urls),
+    path("api-token-auth/", obtain_auth_token, name="api_token_auth"),
     path("api/", include(router.urls)),
 ]
-
 
 ```
 
 ---
 
-# ⚙️ 6. Exemplos de view / serializer / model (rápido)
+# ⚙️ 7. Exemplos de view / serializer / model (rápido)
 
 1. api/models.py
 
@@ -326,7 +410,88 @@ class BookViewSet(viewsets.ModelViewSet):
 
 ---
 
-# ⚙️ 7. Configurar Black / isort / Flake8 (arquivos)
+# ⚙️ 8. Adicione testes ao projeto
+
+1. api/tests.py
+
+```bash
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from .models import Book
+
+
+class BookAPITestCase(APITestCase):
+
+    def setUp(self):
+        self.list_url = reverse("books-list")
+
+    def test_list_books(self):
+        """Testa listar livros com paginação"""
+
+        Book.objects.create(title="Livro 1", author="Autor 1", price=10.50)
+
+        response = self.client.get(self.list_url)
+
+        # Verifica status HTTP
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Verifica estrutura da paginação
+        self.assertIn("count", response.data)
+        self.assertIn("results", response.data)
+
+        # Deve haver exatamente 1 livro
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"]), 1)
+
+    def test_create_book(self):
+        """Testa criar um livro via POST"""
+
+        data = {"title": "Novo Livro", "author": "Autor X", "price": "25.90"}
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Book.objects.count(), 1)
+        self.assertEqual(Book.objects.first().title, "Novo Livro")
+
+    def test_retrieve_book(self):
+        """Testa detalhe de um livro"""
+
+        book = Book.objects.create(title="Livro A", author="Autor A", price=30.00)
+
+        url = reverse("books-detail", args=[book.id])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["title"], "Livro A")
+
+    def test_update_book(self):
+        """Testa atualizar um livro via PUT"""
+
+        book = Book.objects.create(title="Original", author="Autor", price=50.00)
+
+        url = reverse("books-detail", args=[book.id])
+        data = {"title": "Atualizado", "author": "Autor", "price": "50.00"}
+
+        response = self.client.put(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        book.refresh_from_db()
+        self.assertEqual(book.title, "Atualizado")
+
+    def test_delete_book(self):
+        """Testa deletar um livro"""
+
+        book = Book.objects.create(title="AAA", author="BBB", price=10.00)
+
+        url = reverse("books-detail", args=[book.id])
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Book.objects.count(), 0)
+```
+
+# ⚙️ 9. Configurar Black / isort / Flake8 (arquivos)
 
 1. .flake8
 
@@ -374,7 +539,7 @@ pythonpath = "."
 
 ---
 
-# ⚙️ 8. Makefile
+# ⚙️ 10. Makefile
 
 ```makefile
 SERVICE_NAME = web
@@ -428,7 +593,7 @@ reset: ## 🔥 Reset docker environment (use carefully)
 
 ---
 
-# ⚙️ 9. Dockerfile e docker-compose (dev) + Render
+# ⚙️ 11. Dockerfile e docker-compose (dev) + Render
 
 1. Dockerfile (prod-ready)
 
@@ -459,7 +624,6 @@ CMD ["bash", "-c", "python manage.py migrate --noinput && gunicorn core.wsgi:app
 2. docker-compose.yml (dev)
 
 ```yaml
-version: "3.9"
 services:
   db:
     image: postgres:16-alpine
@@ -488,7 +652,7 @@ volumes:
   postgres_data:
 ```
 
-# ⚙️ 10. Deploy no Render
+# ⚙️ 12. Deploy no Render
 
 1. Exemplo render.yaml
 
@@ -513,7 +677,7 @@ databases:
 
 ---
 
-# ⚙️ 11. GitHub Actions (CI) - workflow pronto
+# ⚙️ 13. GitHub Actions (CI) - workflow pronto
 
 1. Crie .github/workflows/django-ci.yml
 
@@ -529,6 +693,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -539,7 +704,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -568,6 +733,14 @@ jobs:
           poetry run isort . --check-only
           poetry run flake8 .
 
+      - name: Wait for Postgres
+        run: |
+          for i in {1..10}; do
+            pg_isready -h localhost -p 5432 && break
+            echo "Waiting for Postgres..."
+            sleep 3
+          done
+
       - name: 7. Run Tests
         env:
           PYTHONPATH: "."
@@ -584,7 +757,7 @@ jobs:
 
 ---
 
-# ⚙️ 12. .gitignore
+# ⚙️ 14. .gitignore
 
 ```bash
 # ============================================
@@ -685,7 +858,7 @@ docker-data/
 
 ---
 
-# 🐳 13. .dockerignore
+# 🐳 15. .dockerignore
 
 ```bash
 # ============================================
@@ -749,7 +922,7 @@ docker-compose.yml
 
 ---
 
-# ⚙️ 14. requirements.txt para deploy (export)
+# ⚙️ 16. requirements.txt para deploy (export)
 
 ```bash
 poetry export -f requirements.txt --output requirements.txt --without-hashes
@@ -757,7 +930,7 @@ poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 ---
 
-# 🚀 15. Pushing para o GitHub
+# 🚀 17. Pushing para o GitHub
 
 ```bash
 git add .
@@ -768,7 +941,7 @@ git push -u origin main
 
 ```
 
-# 🎉 16. Seu projeto está pronto!
+# 🎉 18. Seu projeto está pronto!
 
 ---
 
