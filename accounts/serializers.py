@@ -17,7 +17,14 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "username", "password"]
+        fields = ["id", "email", "username", "password", "confirmPassword"]
+
+    def validate(self, attrs):
+        # Verifica senha === confirmPassword
+        if attrs["password"] != attrs["confirmPassword"]:
+            raise serializers.ValidationError({"confirmPassword": "As senhas não coincidem."})
+
+        return attrs
 
     def validate_email(self, value):
         """
