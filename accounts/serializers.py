@@ -28,9 +28,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         confirm_password = self.initial_data.get("confirm_password")
 
         if attrs["password"] != confirm_password:
-            raise serializers.ValidationError({
-                "confirm_password": "As senhas não coincidem."
-            })
+            raise serializers.ValidationError({"confirm_password": "As senhas não coincidem."})
 
         return attrs
 
