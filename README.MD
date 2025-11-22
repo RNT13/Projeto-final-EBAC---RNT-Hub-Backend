@@ -70,7 +70,7 @@ poetry init --no-interaction
 3. Instalar dependências base
 
 ```bash
-poetry add django djangorestframework gunicorn dj-database-url python-dotenv whitenoise psycopg2-binary pillow factory_boy
+poetry add django djangorestframework gunicorn dj-database-url python-dotenv whitenoise psycopg2-binary pillow factory_boy django-cors-headers
 ```
 
 4. Instalar dev-deps (formatadores, linters, test runner)
@@ -233,6 +233,7 @@ INSTALLED_APPS = [
     # 3rd party
     "rest_framework",
     "rest_framework.authtoken",
+    "corsheaders",
     # locais
     "accounts",
     "posts",
@@ -247,6 +248,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -257,6 +259,19 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "core.urls"
+
+# ----------------------------------------------------------------------
+# CONFIGURAÇÃO CORS
+# ----------------------------------------------------------------------
+
+# Permite o acesso do seu frontend em desenvolvimento
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://rnt-hub.onrender.com/",
+    # Lembre-se de adicionar o domínio de produção do seu frontend aqui no futuro
+]
+
 
 # --------------------------------------------------------------------
 # Templates
@@ -313,7 +328,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
-
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
@@ -335,7 +349,6 @@ if not DEBUG:
 SECURE_SSL_REDIRECT = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
-
 ```
 
 ---
@@ -1021,6 +1034,12 @@ docker-compose.yml
 
 ```bash
 poetry export -f requirements.txt --output requirements.txt --without-hashes
+```
+
+ou
+
+```bash
+pip freeze > requirements.txt
 ```
 
 ---

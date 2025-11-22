@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     # 3rd party
     "rest_framework",
     "rest_framework.authtoken",
+    "corsheaders",
     # locais
     "accounts",
     "posts",
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -51,6 +53,19 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "core.urls"
+
+# ----------------------------------------------------------------------
+# CONFIGURAÇÃO CORS
+# ----------------------------------------------------------------------
+
+# Permite o acesso do seu frontend em desenvolvimento
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://rnt-hub.onrender.com/",
+    # Lembre-se de adicionar o domínio de produção do seu frontend aqui no futuro
+]
+
 
 # --------------------------------------------------------------------
 # Templates
