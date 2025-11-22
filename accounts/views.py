@@ -1,8 +1,8 @@
 from rest_framework import mixins, permissions, viewsets
+from rest_framework.permissions import AllowAny
 
 from .models import User
 from .serializers import UserRegisterSerializer, UserSerializer
-from rest_framework.permissions import AllowAny
 
 
 # -------------------------------------------------------------------
