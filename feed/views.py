@@ -1,5 +1,6 @@
 from django.db.models import Count, F
 from rest_framework import permissions, viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import CursorPagination
 
 from follows.models import Follow
@@ -25,39 +26,33 @@ class FeedViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = FeedCursorPagination
 
-    # 1️⃣ Feed do usuário (meus posts + posts de quem sigo)
+    @action(detail=False, methods=["get"])
     def user_feed(self, request):
         following_ids = Follow.objects.filter(follower=request.user).values_list("following_id", flat=True)
-
         queryset = Post.objects.filter(author__in=list(following_ids) + [request.user.id]).order_by("-created_at")
-
         return self.paginate_and_serialize(request, queryset)
 
-    # 2️⃣ Feed global / explore (todos os posts)
+    @action(detail=False, methods=["get"])
     def explore_feed(self, request):
         queryset = Post.objects.all().order_by("-created_at")
         return self.paginate_and_serialize(request, queryset)
 
-    # 3️⃣ Feed filtrado: apenas posts com imagem
+    @action(detail=False, methods=["get"])
     def images_feed(self, request):
         following_ids = Follow.objects.filter(follower=request.user).values_list("following_id", flat=True)
-
         queryset = Post.objects.filter(
             author__in=list(following_ids) + [request.user.id], image__isnull=False
         ).order_by("-created_at")
-
         return self.paginate_and_serialize(request, queryset)
 
-    # 4️⃣ Feed por algoritmo: score baseado em likes e comentários
+    @action(detail=False, methods=["get"])
     def algorithm_feed(self, request):
         following_ids = Follow.objects.filter(follower=request.user).values_list("following_id", flat=True)
-
         queryset = (
             Post.objects.filter(author__in=list(following_ids) + [request.user.id])
             .annotate(score=F("likes__count") * 2 + Count("comments"))
             .order_by("-score", "-created_at")
         )
-
         return self.paginate_and_serialize(request, queryset)
 
     # Função helper para paginar e serializar

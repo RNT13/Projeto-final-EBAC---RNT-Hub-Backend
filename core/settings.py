@@ -27,7 +27,10 @@ INSTALLED_APPS = [
     # 3rd party
     "rest_framework",
     "rest_framework.authtoken",
+    "rest_framework_simplejwt",
     "corsheaders",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
     # locais
     "accounts",
     "posts",
@@ -35,6 +38,7 @@ INSTALLED_APPS = [
     "likes",
     "follows",
     "notifications",
+    "feed",
 ]
 
 # --------------------------------------------------------------------
@@ -122,6 +126,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Django REST Framework
 # --------------------------------------------------------------------
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -130,6 +135,15 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+}
+
+# --------------------------------------------------------------------
+# Swagger
+# --------------------------------------------------------------------
+SPECTACULAR_SETTINGS = {
+    "TITLE": "RNT-Hub API",
+    "DESCRIPTION": "Documentação completa da API RNT-Hub",
+    "VERSION": "1.0.0",
 }
 
 

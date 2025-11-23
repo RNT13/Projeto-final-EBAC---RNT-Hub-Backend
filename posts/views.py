@@ -1,12 +1,16 @@
+from django.contrib.auth import get_user_model
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
 from comments.serializers import CommentSerializer
 
 from .models import Post
 from .serializers import PostSerializer
+
+User = get_user_model()
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -35,3 +39,19 @@ class PostViewSet(viewsets.ModelViewSet):
         comments = post.comments_comments.all().order_by("created_at")
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
+
+
+class UserPostsView(ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        user_id = self.kwargs["user_id"]
+
+        # se o usuário não existir → erro 404
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise ValidationError({"detail": "Usuário não encontrado."})
+
+        return Post.objects.filter(author=user).order_by("-created_at")
