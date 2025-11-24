@@ -32,15 +32,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         validated_data.pop("confirm_password")
 
         password = validated_data.pop("password")
+
         user = User(**validated_data)
         user.set_password(password)
         user.save()
         return user
-
-
-# -------------------------------------------------------------------
-#   2. Serializer de perfil (visualização e edição)
-# -------------------------------------------------------------------
 
 
 class UserSerializer(serializers.ModelSerializer):

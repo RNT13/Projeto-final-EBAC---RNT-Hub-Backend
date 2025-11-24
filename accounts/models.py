@@ -14,7 +14,6 @@ class User(AbstractUser):
     website = models.URLField(blank=True)
     location = models.CharField(max_length=100, blank=True)
 
-    # Campo útil
     is_verified = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
