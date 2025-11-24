@@ -6,7 +6,7 @@ from .serializers import UserRegisterSerializer, UserSerializer
 
 
 # -------------------------------------------------------------------
-#   1. Registro de usuário (somente CREATE)
+# 1. Registro de usuário (somente CREATE)
 # -------------------------------------------------------------------
 class UserRegisterViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
@@ -15,18 +15,24 @@ class UserRegisterViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 # -------------------------------------------------------------------
-#   2. Perfil do usuário logado (GET e UPDATE)
+# 2. Perfil do usuário logado (GET e UPDATE)
 # -------------------------------------------------------------------
-class UserMeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class UserMeViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # Aqui garantimos que /me/ sempre retorna request.user,
+    # sem precisar de ID na URL
     def get_object(self):
         return self.request.user
 
 
 # -------------------------------------------------------------------
-#   3. Listar usuários
+# 3. Listar usuários
 # -------------------------------------------------------------------
 class AccountViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
