@@ -18,4 +18,4 @@ class PostAPITestCase(APITestCase):
     def test_create_post(self):
         response = self.client.post("/api/v1/posts/", {"content": "Novo post"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["author"], self.user.id)
+        self.assertEqual(response.data["author"]["id"], self.user.id)
