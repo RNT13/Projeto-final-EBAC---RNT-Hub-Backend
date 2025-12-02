@@ -59,5 +59,11 @@ class FeedViewSet(viewsets.ViewSet):
     def paginate_and_serialize(self, request, queryset):
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, request)
-        serializer = PostSerializer(page, many=True)
+
+        serializer = PostSerializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+
         return paginator.get_paginated_response(serializer.data)
