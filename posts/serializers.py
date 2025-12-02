@@ -7,7 +7,7 @@ from .models import Post
 
 class PostSerializer(serializers.ModelSerializer):
     author = UserPublicSerializer(read_only=True)
-    image = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, allow_null=True)
     likes_count = serializers.IntegerField(source="likes.count", read_only=True)
     comments_count = serializers.IntegerField(source="comments.count", read_only=True)
 
@@ -30,8 +30,13 @@ class PostSerializer(serializers.ModelSerializer):
             "comments_count",
         ]
 
-    def get_image(self, obj):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
         request = self.context.get("request")
-        if obj.image and request:
-            return request.build_absolute_uri(obj.image.url)
-        return None
+
+        if instance.image and request:
+            data["image"] = request.build_absolute_uri(instance.image.url)
+        else:
+            data["image"] = None
+
+        return data
