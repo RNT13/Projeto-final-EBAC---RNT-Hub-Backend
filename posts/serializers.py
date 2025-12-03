@@ -9,8 +9,8 @@ class PostSerializer(serializers.ModelSerializer):
     author = UserPublicSerializer(read_only=True)
     image = serializers.URLField(required=False, allow_null=True)
     is_liked = serializers.SerializerMethodField()
-    likes_count = serializers.IntegerField(read_only=True)
-    comments_count = serializers.IntegerField(read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
