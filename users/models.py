@@ -16,7 +16,7 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="USER")
 
-    user_tag = models.CharField(max_length=30, unique=True, default="@NewUser", blank=True)
+    user_tag = models.CharField(max_length=30, unique=True, blank=True)
 
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True)
