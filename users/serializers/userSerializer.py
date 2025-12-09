@@ -48,4 +48,8 @@ class UserSerializer(serializers.ModelSerializer):
 def validate_username(self, value):
     if User.objects.exclude(pk=self.instance.pk).filter(username=value).exists():
         raise serializers.ValidationError("Esse username já está em uso.")
+
+    if not value[0].isupper():
+        raise serializers.ValidationError("O username deve começar com letra maiúscula.")
+
     return value
