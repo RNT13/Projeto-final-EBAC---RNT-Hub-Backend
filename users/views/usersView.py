@@ -19,11 +19,9 @@ class UserViewSet(viewsets.ModelViewSet):
     def me(self, request):
         user = request.user
 
-        if request.method == "GET":
-            return Response(UserSerializer(user).data)
-
-        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        if request.method == "PATCH":
+            serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
 
         return Response(UserSerializer(user).data)

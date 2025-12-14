@@ -30,14 +30,24 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["username"]
 
     def save(self, *args, **kwargs):
-        if not self.user_tag:
+        if not self.pk:
+            # criação
             base = f"@{self.username}"
-            tag = base
-            counter = 1
-            while User.objects.filter(user_tag=tag).exists():
-                tag = f"{base}{counter}"
-                counter += 1
-            self.user_tag = tag
+        else:
+            old = User.objects.filter(pk=self.pk).values_list("username", flat=True).first()
+            if old != self.username:
+                base = f"@{self.username}"
+            else:
+                super().save(*args, **kwargs)
+                return
+
+        tag = base
+        counter = 1
+        while User.objects.filter(user_tag=tag).exclude(pk=self.pk).exists():
+            tag = f"{base}{counter}"
+            counter += 1
+
+        self.user_tag = tag
         super().save(*args, **kwargs)
 
     def __str__(self):
