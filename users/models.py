@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -9,6 +10,18 @@ def user_avatar_path(instance, filename):
 class User(AbstractUser):
     email = models.EmailField(unique=True)
 
+    full_name = models.CharField(max_length=100, blank=True)
+
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        validators=[
+            RegexValidator(
+                regex=r"^[a-zA-Z0-9._-]+$", message='Username pode conter apenas letras, números, ".", "_" e "-".'
+            )
+        ],
+    )
+
     ROLE_CHOICES = (
         ("ADMIN", "Admin"),
         ("USER", "User"),
@@ -16,7 +29,7 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="USER")
 
-    user_tag = models.CharField(max_length=30, unique=True, blank=True)
+    user_tag = models.CharField(max_length=20, unique=True, blank=True)
 
     bio = models.TextField(blank=True)
     avatar = models.URLField(blank=True, null=True)
@@ -28,6 +41,7 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
+    REQUIRED_FIELDS = ["username", "full_name"]
 
     def save(self, *args, **kwargs):
         if not self.pk:
