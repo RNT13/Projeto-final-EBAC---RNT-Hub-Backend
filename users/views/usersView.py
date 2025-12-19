@@ -13,6 +13,10 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+    lookup_field = "username"
+    lookup_url_kwarg = "username"
+
     http_method_names = ["get", "patch", "head", "options"]
 
     @action(detail=False, methods=["get", "patch"], url_path="me")
