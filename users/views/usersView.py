@@ -1,8 +1,10 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from follows.models import Follow
 from users.models import User
 from users.serializers.ChangePasswordSerializer import ChangePasswordSerializer
 from users.serializers.userSerializer import UserSerializer
@@ -51,3 +53,57 @@ class UserViewSet(viewsets.ModelViewSet):
             {"detail": "Senha alterada com sucesso."},
             status=status.HTTP_200_OK,
         )
+
+    @action(
+        detail=True,
+        methods=["post", "delete"],
+        permission_classes=[IsAuthenticated],
+        url_path="follow",
+    )
+    def follow_toggle(self, request, username=None):
+        target_user = get_object_or_404(User, username=username)
+        current_user = request.user
+
+        if target_user == current_user:
+            return Response(
+                {"detail": "Você não pode seguir a si mesmo."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        follow = Follow.objects.filter(
+            follower=current_user,
+            following=target_user,
+        ).first()
+
+        # 👉 SEGUIR
+        if request.method == "POST":
+            if follow:
+                return Response(
+                    {"detail": "Você já segue este usuário."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            Follow.objects.create(
+                follower=current_user,
+                following=target_user,
+            )
+
+            return Response(
+                {"detail": "Usuário seguido com sucesso."},
+                status=status.HTTP_201_CREATED,
+            )
+
+        # 👉 DEIXAR DE SEGUIR
+        if request.method == "DELETE":
+            if not follow:
+                return Response(
+                    {"detail": "Você não segue este usuário."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            follow.delete()
+
+            return Response(
+                {"detail": "Você deixou de seguir este usuário."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
