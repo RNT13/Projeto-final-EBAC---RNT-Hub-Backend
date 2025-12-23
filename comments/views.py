@@ -6,7 +6,7 @@ from comments.permissions import IsOwnerOrReadOnly
 from posts.models import Post
 
 from .models import Comment
-from .serializers import CommentSerializer
+from .serializers.commentSerializer import CommentSerializer
 
 
 class CommentListCreateView(generics.ListCreateAPIView):

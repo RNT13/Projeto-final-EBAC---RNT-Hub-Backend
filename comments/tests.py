@@ -20,7 +20,11 @@ class CommentAPITestCase(APITestCase):
             {"content": "Comentário de teste"},
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["user"], self.user.id)
+        user_data = response.data["user"]
+
+        self.assertEqual(user_data["id"], self.user.id)
+        self.assertEqual(user_data["username"], self.user.username)
+        self.assertIsNone(user_data["avatar"])
 
     def test_list_comments(self):
         CommentFactory(user=self.user, post=self.post)

@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
-from comments.serializers import CommentSerializer
+from comments.serializers.commentSerializer import CommentSerializer
 
 from .models import Post
 from .serializers import PostSerializer
