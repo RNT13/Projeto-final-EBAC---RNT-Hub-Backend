@@ -1,3 +1,6 @@
+# ============================================================
+# 📦 IMPORTS
+# ============================================================
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -5,13 +8,30 @@ from pathlib import Path
 import dj_database_url
 from django.core.management.utils import get_random_secret_key
 
+# ============================================================
+# 📁 BASE DIR
+# ============================================================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# ============================================================
+# 🔐 CORE SETTINGS
+# ============================================================
 SECRET_KEY = os.getenv("SECRET_KEY", get_random_secret_key())
 DEBUG = os.getenv("DEBUG", "1") == "1"
 
+
+# ============================================================
+# 🌍 HOSTS & SECURITY ORIGINS
+# ============================================================
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if origin]
+
+
+# ============================================================
+# 🌐 CORS (Frontend Access)
+# ============================================================
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -19,26 +39,34 @@ CORS_ALLOWED_ORIGINS = [
     "https://rnt-hub.vercel.app",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_HEADERS = True
 
+
+# ============================================================
+# 👤 CUSTOM USER MODEL
+# ============================================================
 AUTH_USER_MODEL = "users.User"
 
-# --------------------------------------------------------------------
-# Apps
-# --------------------------------------------------------------------
+
+# ============================================================
+# 📦 INSTALLED APPS
+# ============================================================
 INSTALLED_APPS = [
+    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # 3rd party
+    # Third-party
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
     "drf_spectacular",
     "drf_spectacular_sidecar",
-    # locais
+    # Local apps
     "users",
     "posts",
     "comments",
@@ -48,9 +76,11 @@ INSTALLED_APPS = [
     "feed",
 ]
 
-# --------------------------------------------------------------------
-# Middleware
-# --------------------------------------------------------------------
+
+# ============================================================
+# 🧱 MIDDLEWARE
+# ⚠️ CORS deve vir antes do CommonMiddleware
+# ============================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -63,23 +93,17 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
+
+# ============================================================
+# 🔗 URLS & WSGI
+# ============================================================
 ROOT_URLCONF = "core.urls"
+WSGI_APPLICATION = "core.wsgi.application"
 
-# ----------------------------------------------------------------------
-# CORS
-# ----------------------------------------------------------------------
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://rnt-hub.onrender.com",
-]
 
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_HEADERS = True
-
-# --------------------------------------------------------------------
-# Templates
-# --------------------------------------------------------------------
+# ============================================================
+# 🖼️ TEMPLATES
+# ============================================================
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -95,16 +119,21 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "core.wsgi.application"
 
-# --------------------------------------------------------------------
-# Database
-# --------------------------------------------------------------------
-DATABASES = {"default": dj_database_url.config(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600)}
+# ============================================================
+# 🗄️ DATABASE
+# ============================================================
+DATABASES = {
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
+}
 
-# --------------------------------------------------------------------
-# Password validators
-# --------------------------------------------------------------------
+
+# ============================================================
+# 🔑 PASSWORD VALIDATION
+# ============================================================
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -112,30 +141,33 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# --------------------------------------------------------------------
-# Internacionalização
-# --------------------------------------------------------------------
+
+# ============================================================
+# 🌍 I18N / TIMEZONE
+# ============================================================
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# --------------------------------------------------------------------
-# Static files
-# --------------------------------------------------------------------
+
+# ============================================================
+# 📂 STATIC FILES
+# ============================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# --------------------------------------------------------------------
-# Media files
-# --------------------------------------------------------------------
+
+# ============================================================
+# 📸 MEDIA FILES
+# ============================================================
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-# --------------------------------------------------------------------
-# Django REST Framework + JWT
-# --------------------------------------------------------------------
+# ============================================================
+# 🔌 DJANGO REST FRAMEWORK
+# ============================================================
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -148,9 +180,10 @@ REST_FRAMEWORK = {
     ],
 }
 
-# --------------------------------------------------------------------
-# SIMPLE JWT
-# --------------------------------------------------------------------
+
+# ============================================================
+# 🔐 SIMPLE JWT
+# ============================================================
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -159,24 +192,29 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-# --------------------------------------------------------------------
-# Swagger
-# --------------------------------------------------------------------
+
+# ============================================================
+# 📘 SWAGGER / OPENAPI
+# ============================================================
 SPECTACULAR_SETTINGS = {
     "TITLE": "RNT-Hub API",
     "DESCRIPTION": "Documentação completa da API RNT-Hub",
     "VERSION": "1.0.0",
 }
 
-# Remover HTML Browsable API em produção
+
+# ============================================================
+# 🚫 DISABLE BROWSABLE API IN PROD
+# ============================================================
 if not DEBUG:
     REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = [
         "rest_framework.renderers.JSONRenderer",
     ]
 
-# --------------------------------------------------------------------
-# Segurança
-# --------------------------------------------------------------------
+
+# ============================================================
+# 🔒 SECURITY (PRODUCTION SAFE)
+# ============================================================
 SECURE_SSL_REDIRECT = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
