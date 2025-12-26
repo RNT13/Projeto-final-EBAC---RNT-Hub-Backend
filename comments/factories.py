@@ -1,7 +1,11 @@
 import factory
+from django.contrib.auth import get_user_model
 
-from comments.models import Comment
 from posts.factories import PostFactory
+
+from .models import Comment
+
+User = get_user_model()
 
 
 class CommentFactory(factory.django.DjangoModelFactory):
