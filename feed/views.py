@@ -15,6 +15,9 @@ class FeedCursorPagination(CursorPagination):
 
 
 class FeedViewSet(viewsets.ViewSet):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = FeedCursorPagination
     """
     FeedViewSet com diferentes tipos de feed:
       1. feed do usuário (quem sigo + meus posts)

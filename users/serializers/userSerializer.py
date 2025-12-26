@@ -42,13 +42,13 @@ class UserSerializer(serializers.ModelSerializer):
             "following_count",
         ]
 
-    def get_followers_count(self, obj):
+    def get_followers_count(self, obj) -> int:
         return Follow.objects.filter(following=obj).count()
 
-    def get_following_count(self, obj):
+    def get_following_count(self, obj) -> int:
         return Follow.objects.filter(follower=obj).count()
 
-    def get_is_following(self, obj):
+    def get_is_following(self, obj) -> bool:
         request = self.context.get("request")
 
         if not request or request.user.is_anonymous:

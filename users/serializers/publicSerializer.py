@@ -20,7 +20,7 @@ class UserPublicSerializer(serializers.ModelSerializer):
             "is_following",
         ]
 
-    def get_is_following(self, obj):
+    def get_is_following(self, obj) -> bool:
         request = self.context.get("request")
 
         if not request or request.user.is_anonymous:
