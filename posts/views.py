@@ -23,7 +23,7 @@ class PostViewSet(viewsets.ModelViewSet):
     )
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    parser_classes = [JSONParser]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
