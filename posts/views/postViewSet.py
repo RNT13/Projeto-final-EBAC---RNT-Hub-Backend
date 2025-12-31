@@ -2,15 +2,14 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListAPIView
 from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from comments.serializers.commentSerializer import CommentSerializer
-
-from .models import Post
-from .serializers import PostSerializer
+from likes.models import Like
+from posts.models import Post
+from posts.serializers import PostSerializer
 
 User = get_user_model()
 
@@ -47,21 +46,17 @@ class PostViewSet(viewsets.ModelViewSet):
         context["request"] = self.request
         return context
 
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def like(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
 
-class UserPostsView(ListAPIView):
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        like, created = Like.objects.get_or_create(user=user, post=post)
 
-    def get_queryset(self):
-        username = self.kwargs["username"]
+        if not created:
+            like.delete()
+            liked = False
+        else:
+            liked = True
 
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise ValidationError({"detail": "Usuário não encontrado."})
-
-        return (
-            Post.objects.filter(author=user)
-            .annotate(likes_count=Count("likes", distinct=True), comments_count=Count("comments", distinct=True))
-            .order_by("-created_at")
-        )
+        return Response({"liked": liked, "likes_count": post.likes.count()})

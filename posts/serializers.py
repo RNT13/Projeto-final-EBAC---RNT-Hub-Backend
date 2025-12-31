@@ -9,9 +9,9 @@ class PostSerializer(serializers.ModelSerializer):
     author = UserPublicSerializer(read_only=True)
     image = serializers.URLField(required=False, allow_null=True, allow_blank=True)
     content = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    likes_count = serializers.IntegerField(read_only=True)
     is_liked = serializers.SerializerMethodField()
-    likes_count = serializers.SerializerMethodField()
-    comments_count = serializers.SerializerMethodField()
+    comments_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Post
@@ -40,12 +40,10 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.comments.count()
 
     def get_is_liked(self, obj):
-        request = self.context.get("request")
-
-        if not request or request.user.is_anonymous:
+        user = self.context["request"].user
+        if user.is_anonymous:
             return False
-
-        return obj.likes.filter(user=request.user).exists()
+        return obj.likes.filter(user=user).exists()
 
     def validate(self, data):
         content = data.get("content")

@@ -10,7 +10,8 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from .views import PostViewSet, UserPostsView
+from posts.views.postViewSet import PostViewSet
+from posts.views.userPostsView import UserPostsView
 
 # -------------------------------------------------------------------
 # Router padrão DRF (ViewSet de Posts)

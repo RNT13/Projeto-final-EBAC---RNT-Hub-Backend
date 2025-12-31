@@ -1,25 +1,21 @@
-# -------------------------------------------------------------------
-# URLs do app de Likes
-# -------------------------------------------------------------------
-# Este módulo define todas as rotas envolvendo curtidas:
-# - Curtir um post
-# - Remover curtida
-# - Listar likes de um post
-# -------------------------------------------------------------------
+from django.urls import path
 
-from rest_framework.routers import DefaultRouter
+from likes.views.likeToggleView import LikeToggleView
+from likes.views.postLikesListView import PostLikesListView
 
-from .views import LikeViewSet
-
-# -------------------------------------------------------------------
-# DRF Router — rotas automáticas:
-# /api/v1/likes/
-# /api/v1/likes/<id>/
-# -------------------------------------------------------------------
-router = DefaultRouter()
-router.register("", LikeViewSet, basename="likes")
-
-# -------------------------------------------------------------------
-# Rotas personalizadas
-# -------------------------------------------------------------------
-urlpatterns = router.urls
+urlpatterns = [
+    # Curtir / descurtir
+    # POST /api/v1/likes/posts/<post_id>/
+    path(
+        "posts/<int:post_id>/",
+        LikeToggleView.as_view(),
+        name="like-toggle",
+    ),
+    # Listar usuários que curtiram
+    # GET /api/v1/likes/posts/<post_id>/users/
+    path(
+        "posts/<int:post_id>/users/",
+        PostLikesListView.as_view(),
+        name="post-likes-list",
+    ),
+]

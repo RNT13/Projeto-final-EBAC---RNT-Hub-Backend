@@ -8,6 +8,7 @@ from users.factories import UserFactory
 
 class CommentAPITestCase(APITestCase):
 
+    # configurações iniciais do test
     def setUp(self):
         self.user = UserFactory()
         self.client.force_authenticate(user=self.user)

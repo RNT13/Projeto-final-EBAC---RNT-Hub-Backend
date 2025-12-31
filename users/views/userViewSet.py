@@ -1,5 +1,4 @@
 from django.db.models import Count, Exists, OuterRef
-from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -21,17 +20,14 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = "username"
     lookup_url_kwarg = "username"
 
-    http_method_names = ["get", "patch", "post", "delete", "head", "options"]
-
     def get_queryset(self):
         user = self.request.user
 
-        queryset = User.objects.all().annotate(
+        queryset = User.objects.annotate(
             followers_count=Count("followers", distinct=True),
             following_count=Count("following", distinct=True),
         )
 
-        # 👇 Otimiza is_following / is_follower
         if user.is_authenticated:
             queryset = queryset.annotate(
                 is_following=Exists(
@@ -83,14 +79,12 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(
-        detail=True,
-        methods=["post", "delete"],
-        permission_classes=[IsAuthenticated],
-        url_path="follow",
-    )
+    # ---------------------------
+    # FOLLOW TOGGLE
+    # ---------------------------
+    @action(detail=True, methods=["post", "delete"], url_path="follow")
     def follow_toggle(self, request, username=None):
-        target_user = get_object_or_404(User, username=username)
+        target_user = self.get_object()
         current_user = request.user
 
         if target_user == current_user:
@@ -104,7 +98,6 @@ class UserViewSet(viewsets.ModelViewSet):
             following=target_user,
         ).first()
 
-        # 👉 SEGUIR
         if request.method == "POST":
             if follow:
                 return Response(
@@ -122,17 +115,44 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_201_CREATED,
             )
 
-        # 👉 DEIXAR DE SEGUIR
-        if request.method == "DELETE":
-            if not follow:
-                return Response(
-                    {"detail": "Você não segue este usuário."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            follow.delete()
-
+        # DELETE
+        if not follow:
             return Response(
-                {"detail": "Você deixou de seguir este usuário."},
-                status=status.HTTP_204_NO_CONTENT,
+                {"detail": "Você não segue este usuário."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+
+        follow.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # ---------------------------
+    # FOLLOWERS
+    # ---------------------------
+    @action(detail=True, methods=["get"])
+    def followers(self, request, username=None):
+        user = self.get_object()
+
+        followers = User.objects.filter(following__following=user)
+
+        serializer = UserSerializer(
+            followers,
+            many=True,
+            context={"request": request},
+        )
+        return Response(serializer.data)
+
+    # ---------------------------
+    # FOLLOWING
+    # ---------------------------
+    @action(detail=True, methods=["get"])
+    def following(self, request, username=None):
+        user = self.get_object()
+
+        following = User.objects.filter(followers__follower=user)
+
+        serializer = UserSerializer(
+            following,
+            many=True,
+            context={"request": request},
+        )
+        return Response(serializer.data)

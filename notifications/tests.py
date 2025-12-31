@@ -1,7 +1,8 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .factories import NotificationFactory, UserFactory
+from notifications.factories import NotificationFactory
+from users.factories import UserFactory
 
 
 class NotificationAPITestCase(APITestCase):

@@ -1,7 +1,9 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .factories import FollowFactory, UserFactory
+from follows.factories import FollowFactory
+from follows.models import Follow
+from users.factories import UserFactory
 
 
 class FollowAPITestCase(APITestCase):
@@ -12,9 +14,14 @@ class FollowAPITestCase(APITestCase):
         self.other_user = UserFactory()
 
     def test_follow_user(self):
-        response = self.client.post("/api/v1/follows/", {"following": self.other_user.id})
+        response = self.client.post(f"/api/v1/users/{self.other_user.username}/follow/")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["follower"], self.user.id)
+        self.assertTrue(
+            Follow.objects.filter(
+                follower=self.user,
+                following=self.other_user,
+            ).exists()
+        )
 
     def test_list_follows(self):
         FollowFactory(follower=self.user, following=self.other_user)
