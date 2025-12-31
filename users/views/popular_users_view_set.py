@@ -2,7 +2,7 @@ from django.db.models import Count
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from users.models import User
-from users.serializers.userSerializer import UserSerializer
+from users.serializers.user_serializer import UserSerializer
 
 
 class PopularUsersViewSet(ReadOnlyModelViewSet):

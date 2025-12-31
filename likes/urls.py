@@ -1,7 +1,7 @@
 from django.urls import path
 
-from likes.views.likeToggleView import LikeToggleView
-from likes.views.postLikesListView import PostLikesListView
+from likes.views.like_toggle_view import LikeToggleView
+from likes.views.post_likes_list_view import PostLikesListView
 
 urlpatterns = [
     # Curtir / descurtir

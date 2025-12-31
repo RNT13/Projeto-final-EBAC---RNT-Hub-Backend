@@ -3,7 +3,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from comments.models import Comment
-from comments.serializers.commentSerializer import CommentSerializer
+from comments.serializers.comment_serializer import CommentSerializer
 from posts.models import Post
 
 

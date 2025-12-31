@@ -1,4 +1,4 @@
-from .commentDetailView import CommentDetailView
-from .commentListCreateView import CommentListCreateView
+from .comment_detail_view import CommentDetailView
+from .comment_list_create_view import CommentListCreateView
 
 __all__ = ["CommentDetailView", "CommentListCreateView"]

@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from comments.models import Comment
 from comments.permissions import IsOwnerOrReadOnly
-from comments.serializers.commentSerializer import CommentSerializer
+from comments.serializers.comment_serializer import CommentSerializer
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):

@@ -6,9 +6,9 @@ from rest_framework.response import Response
 
 from follows.models import Follow
 from users.models import User
-from users.serializers.ChangePasswordSerializer import ChangePasswordSerializer
-from users.serializers.userSerializer import UserSerializer
-from users.serializers.userUpdateSerializer import UserUpdateSerializer
+from users.serializers.change_password_serializer import ChangePasswordSerializer
+from users.serializers.user_serializer import UserSerializer
+from users.serializers.user_update_serializer import UserUpdateSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):

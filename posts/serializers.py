@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from users.serializers.publicSerializer import UserPublicSerializer
+from users.serializers.public_serializer import UserPublicSerializer
 
 from .models import Post
 

@@ -1,4 +1,4 @@
-from .likeToggleView import LikeToggleView
-from .postLikesListView import PostLikesListView
+from .like_toggle_view import LikeToggleView
+from .post_likes_list_view import PostLikesListView
 
 __all__ = ["LikeToggleView", "PostLikesListView"]

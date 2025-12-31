@@ -6,7 +6,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from comments.serializers.commentSerializer import CommentSerializer
+from comments.serializers.comment_serializer import CommentSerializer
 from likes.models import Like
 from posts.models import Post
 from posts.serializers import PostSerializer

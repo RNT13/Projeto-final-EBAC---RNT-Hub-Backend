@@ -1,7 +1,7 @@
 from django.urls import path
 
-from comments.views.commentDetailView import CommentDetailView
-from comments.views.commentListCreateView import CommentListCreateView
+from comments.views.comment_detail_view import CommentDetailView
+from comments.views.comment_list_create_view import CommentListCreateView
 
 urlpatterns = [
     # /api/v1/posts/<post_id>/comments/
