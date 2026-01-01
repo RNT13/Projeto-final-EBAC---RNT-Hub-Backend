@@ -15,5 +15,3 @@ urlpatterns = [
     path("register/", UserRegisterViewSet.as_view({"post": "create"})),
     path("", include(router.urls)),
 ]
-
-urlpatterns += router.urls
