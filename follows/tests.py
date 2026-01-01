@@ -14,8 +14,9 @@ class FollowAPITestCase(APITestCase):
         self.other_user = UserFactory()
 
     def test_follow_user(self):
-        response = self.client.post(f"/api/v1/users/{self.other_user.username}/follow/")
+        response = self.client.post(f"/api/v1/users/users/{self.other_user.username}/follow/")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
         self.assertTrue(
             Follow.objects.filter(
                 follower=self.user,
@@ -25,5 +26,7 @@ class FollowAPITestCase(APITestCase):
 
     def test_list_follows(self):
         FollowFactory(follower=self.user, following=self.other_user)
-        response = self.client.get("/api/v1/follows/")
+
+        response = self.client.get(f"/api/v1/users/users/{self.user.username}/following/")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
