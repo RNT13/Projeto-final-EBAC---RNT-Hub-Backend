@@ -15,4 +15,5 @@ class LikeAPITestCase(APITestCase):
     def test_like_post(self):
         response = self.client.post(f"/api/v1/posts/{self.post.id}/like/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data["liked"])
+        self.assertTrue(response.data["is_liked"])
+        self.assertEqual(response.data["likes_count"], 1)

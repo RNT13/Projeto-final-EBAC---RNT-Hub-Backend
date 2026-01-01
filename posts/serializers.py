@@ -33,12 +33,6 @@ class PostSerializer(serializers.ModelSerializer):
             "comments_count",
         ]
 
-    def get_likes_count(self, obj):
-        return obj.likes.count()
-
-    def get_comments_count(self, obj):
-        return obj.comments.count()
-
     def get_is_liked(self, obj):
         user = self.context["request"].user
         if user.is_anonymous:

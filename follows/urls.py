@@ -8,9 +8,17 @@ router = DefaultRouter()
 
 urlpatterns = [
     # GET /api/v1/follows/<user_id>/followers/
-    path("<int:user_id>/followers/", FollowersListView.as_view(), name="followers-list",),
+    path(
+        "<int:user_id>/followers/",
+        FollowersListView.as_view(),
+        name="followers-list",
+    ),
     # GET /api/v1/follows/<user_id>/following/
-    path("<int:user_id>/following/", FollowingListView.as_view(), name="following-list",),
+    path(
+        "<int:user_id>/following/",
+        FollowingListView.as_view(),
+        name="following-list",
+    ),
 ]
 
 urlpatterns += router.urls

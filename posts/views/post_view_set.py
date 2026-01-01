@@ -55,8 +55,11 @@ class PostViewSet(viewsets.ModelViewSet):
 
         if not created:
             like.delete()
-            liked = False
-        else:
-            liked = True
 
-        return Response({"liked": liked, "likes_count": post.likes.count()})
+        post = Post.objects.annotate(
+            likes_count=Count("likes", distinct=True),
+            comments_count=Count("comments", distinct=True),
+        ).get(pk=post.pk)
+
+        serializer = self.get_serializer(post)
+        return Response(serializer.data)
