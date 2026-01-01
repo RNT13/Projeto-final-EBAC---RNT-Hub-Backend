@@ -72,12 +72,14 @@ class FeedViewSet(viewsets.ViewSet):
             self.base_queryset()
             .filter(author__in=list(following_ids) + [request.user.id])
             .annotate(score=F("likes_count") * 2 + F("comments_count"))
+            .filter(score__gt=0)
             .order_by("-score", "-created_at")
         )
 
         return self.paginate_and_serialize(request, queryset)
 
     # 🔁 Helper para paginação + serializer
+
     def paginate_and_serialize(self, request, queryset):
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, request)
